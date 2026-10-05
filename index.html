@@ -47,7 +47,96 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}.result{position:static}.result .summary{grid-template-columns:repeat(2,minmax(0,1fr))}.result .actions{justify-content:flex-start}}
 @media(max-width:600px){header{padding:24px 16px 20px}.wrap{padding:18px 12px 40px}.card{padding:16px;border-radius:15px;margin-bottom:12px}.card h2{font-size:17px}.sizes{grid-template-columns:repeat(3,1fr);gap:8px}.row{grid-template-columns:repeat(2,1fr);gap:8px}.field input{font-size:16px}.result .summary{grid-template-columns:1fr}.metric{padding:12px}.tiny{font-size:11.5px}}
 @media(max-width:380px){.sizes{grid-template-columns:1fr}.row{grid-template-columns:1fr}.wrap{padding-left:10px;padding-right:10px}}
-</style></head><body><div id="app"><header><div class="wrap" style="padding-top:0;padding-bottom:0"><h1>Closing Shift Calculator</h1><p>Enter today's sold quantities. Ingredient requirements update instantly.</p></div></header><main class="wrap"><div class="grid"><section>
+
+.search-corner{
+  position:fixed;
+  top:18px;
+  right:6vw;
+  z-index:1000;
+}
+.search-toggle{
+  width:42px;
+  height:42px;
+  border:1px solid #fdba74;
+  border-radius:50%;
+  background:#fff7ed;
+  color:#d97706;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  font-size:19px;
+  box-shadow:0 5px 14px rgba(242,140,40,.12);
+}
+.search-panel{
+  display:none;
+  align-items:center;
+  gap:7px;
+  margin-top:8px;
+  padding:7px;
+  background:#ffffff;
+  border:1px solid #fed7aa;
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(42,26,18,.12);
+}
+.search-panel.open{display:flex}
+.search-panel input{
+  width:190px;
+  min-height:38px;
+  padding:8px 10px;
+  border:1px solid #fdba74;
+  border-radius:9px;
+  background:#fff7ed;
+  color:var(--text);
+  font-size:14px;
+  outline:none;
+}
+.search-panel input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(242,140,40,.14);
+}
+.search-clear{
+  min-width:38px;
+  height:38px;
+  border:1px solid #fdba74;
+  border-radius:9px;
+  background:#ffffff;
+  color:var(--muted);
+  cursor:pointer;
+}
+.search-match{
+  background:#c65f00;
+  color:#ffffff;
+  border-radius:3px;
+  padding:0 2px;
+}
+.search-nav{
+  min-width:34px;
+  height:38px;
+  border:1px solid #fdba74;
+  border-radius:9px;
+  background:#fff7ed;
+  color:#d97706;
+  cursor:pointer;
+  font-size:15px;
+}
+.search-nav:hover{background:#ffedd5}
+.search-count{
+  min-width:34px;
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+  white-space:nowrap;
+}
+.search-match.current{
+  background:#7c2d00;
+  outline:2px solid #fbbf24;
+}
+@media(max-width:600px){
+  .search-corner{right:16px;top:14px}
+  .search-panel{position:absolute;right:0}
+  .search-panel input{width:170px}
+}
+</style></head><body><div id="app"><header style="position:relative"><div class="search-corner"><button class="search-toggle" id="searchToggle" aria-label="Search" title="Search">⌕</button><div class="search-panel" id="searchPanel"><input id="siteSearch" type="search" placeholder="Search items..." aria-label="Search items"><span class="search-count" id="searchCount"></span><button class="search-nav" id="searchPrev" type="button" aria-label="Previous match" title="Previous">▲</button><button class="search-nav" id="searchNext" type="button" aria-label="Next match" title="Next">▼</button><button class="search-clear" id="searchClear" type="button" aria-label="Clear search">×</button></div></div><div class="wrap" style="padding-top:0;padding-bottom:0"><h1>Closing Shift Calculator</h1><p>Enter today's sold quantities. Ingredient requirements update instantly.</p></div></header><main class="wrap"><div class="grid"><section>
 <div class="card"><h2>🍕 Pizza</h2><p class="sub">Enter the number of pizzas sold by size. For the 3 special pizzas, use the special row.</p><div class="sizes"><div class="field"><label>Small — normal</label><input id="pNS" type="number" min="0" value="0"></div><div class="field"><label>Medium — normal</label><input id="pNM" type="number" min="0" value="0"></div><div class="field"><label>Large — normal</label><input id="pNL" type="number" min="0" value="0"></div></div><div class="special"><div class="sizes"><div class="field"><label>Small — special</label><input id="pSS" type="number" min="0" value="0"></div><div class="field"><label>Medium — special</label><input id="pSM" type="number" min="0" value="0"></div><div class="field"><label>Large — special</label><input id="pSL" type="number" min="0" value="0"></div></div><p class="tiny" style="margin-bottom:0">Special: Mimosa Over Loaded, Sausage Pepperoni Mesh, Pepperoni Jalapeno Rush.</p></div><p class="tiny" style="margin-bottom:0;margin-top:14px"><b>Automatic calculation:</b> Chicken is 60 g / 90 g / 120 g per small / medium / large pizza. Mozzarella is 50 g / 80 g / 110 g for normal pizzas and 80 g / 120 g / 160 g for special pizzas.</p></div>
 
 <div class="card"><h2>🧀🍗 Pizza Extras</h2><p class="sub">Enter only the pizzas that use these specific ingredients. Cheddar Heaven also uses the normal pizza chicken and mozzarella amounts; this section adds the cheddar slices separately.</p>
@@ -57,7 +146,108 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 <div class="card"><h2>🍟 Fries & Wedges</h2><p class="sub">120 g raw per serving.</p><div class="row"><div class="field"><label>French Fries</label><input id="ff" type="number" min="0" value="0"></div><div class="field"><label>Masala Fries</label><input id="mf" type="number" min="0" value="0"></div><div class="field"><label>Fish & Chips</label><input id="fc" type="number" min="0" value="0"></div><div class="field"><label>Spicy Potato Wedges</label><input id="pw" type="number" min="0" value="0"></div></div></div>
 <div class="card"><h2>🍗 Wings</h2><p class="sub">Count pieces, not grams.</p><div class="row"><div class="field"><label>BBQ Spicy</label><input id="w1" type="number" min="0" value="0"></div><div class="field"><label>Crispy</label><input id="w2" type="number" min="0" value="0"></div><div class="field"><label>BBQ Honey</label><input id="w3" type="number" min="0" value="0"></div><div class="field"><label>Peri-Peri</label><input id="w4" type="number" min="0" value="0"></div></div><p class="tiny">5-piece orders count as 5 wings; 10-piece orders count as 10.</p></div>
 <div class="card"><h2>🥤 Shakes</h2><p class="sub">Ice-cream shakes: Strawberry, Oreo, Butterscotch, Hazelnut.</p><div class="row"><div class="field"><label>Strawberry — small</label><input id="stS" type="number" min="0" value="0"></div><div class="field"><label>Strawberry — regular</label><input id="stR" type="number" min="0" value="0"></div><div class="field"><label>Oreo — small</label><input id="orS" type="number" min="0" value="0"></div><div class="field"><label>Oreo — regular</label><input id="orR" type="number" min="0" value="0"></div></div><div class="row" style="margin-top:10px"><div class="field"><label>Butterscotch — small</label><input id="buS" type="number" min="0" value="0"></div><div class="field"><label>Butterscotch — regular</label><input id="buR" type="number" min="0" value="0"></div><div class="field"><label>Hazelnut — small</label><input id="haS" type="number" min="0" value="0"></div><div class="field"><label>Hazelnut — regular</label><input id="haR" type="number" min="0" value="0"></div></div><div class="row" style="margin-top:10px"><div class="field"><label>Chocolate Coffee — small</label><input id="ccS" type="number" min="0" value="0"></div><div class="field"><label>Chocolate Coffee — regular</label><input id="ccR" type="number" min="0" value="0"></div></div><p class="tiny">Every shake uses normal milk powder + raw milk: small 15 g + 1 glass; regular 30 g + 2 glasses. Ice-cream amount is 80 g small / 120 g regular. Chocolate Coffee has no ice cream and uses 3 g / 6 g coffee.</p></div>
-<div class="card"><h2>🧋 Boba Bubble</h2><p class="sub">Boba Supreme is not available yet.</p><div class="row"><div class="field"><label>Choco Burst</label><input id="b1" type="number" min="0" value="0"></div><div class="field"><label>Strawberry Bliss</label><input id="b2" type="number" min="0" value="0"></div><div class="field"><label>Boba Cream</label><input id="b3" type="number" min="0" value="0"></div><div class="field"><label>—</label><input disabled value="Boba Supreme" style="opacity:.45"></div></div><p class="tiny">Every Boba item: 120 g corresponding ice cream + 15 g milk powder + 1 glass raw milk.</p></div>
-</section><aside><div class="card result"><h2>📋 Ingredient Totals</h2><div class="summary"><div class="metric"><span>Chicken</span><b id="oChicken">0 g</b></div><div class="metric"><span>Mozzarella</span><b id="oCheese">0 g</b></div><div class="metric"><span>Raw fries</span><b id="oFries">0 g</b></div><div class="metric"><span>Cheddar slices</span><b id="oCheddar">0 pieces</b></div><div class="metric"><span>Chicken balls</span><b id="oBalls">0 pieces</b></div><div class="metric"><span>Sausages</span><b id="oSausages">0 pieces</b></div><div class="metric"><span>Raw wedges</span><b id="oWedges">0 g</b></div><div class="metric"><span>Wings</span><b id="oWings">0 pieces</b></div><div class="metric"><span>Shake milk powder</span><b id="oShPow">0 g</b></div><div class="metric"><span>Boba milk powder</span><b id="oBPow">0 g</b></div><div class="metric"><span>Total milk powder</span><b id="oPow">0 g</b></div><div class="metric"><span>Raw milk</span><b id="oMilk">0 glasses</b></div><div class="metric"><span>Ice cream — shakes</span><b id="oIce">0 g</b></div><div class="metric"><span>Ice cream — boba</span><b id="oBIce">0 g</b></div><div class="metric"><span>Coffee</span><b id="oCoffee">0 g</b></div></div><div class="actions"><button class="btn primary" id="reset">Reset</button></div><p class="tiny" style="margin-top:16px">Based on the supplied Restaurant Closing Shift Calculator cheat sheet. The calculator does not invent quantities where the sheet does not specify them.</p></div></aside></div></main></div><script>
-const ids=['pNS','pNM','pNL','pSS','pSM','pSL','chS','chM','chL','cbCS','cbCM','cbCL','cbMS','cbMM','cbML','sgS','sgM','sgL','saMS','saMM','saML','spS','spM','spL','pjS','pjM','pjL','ff','mf','fc','pw','w1','w2','w3','w4','stS','stR','orS','orR','buS','buR','haS','haR','ccS','ccR','b1','b2','b3'];const n=id=>Number(document.getElementById(id).value)||0;const set=(id,v,u)=>document.getElementById(id).textContent=Math.round(v)+' '+u;function calc(){const chicken=(n('pNS')+n('pSS')+n('chS'))*60+(n('pNM')+n('pSM')+n('chM'))*90+(n('pNL')+n('pSL')+n('chL'))*120;const cheese=(n('pNS')+n('chS'))*50+(n('pNM')+n('chM'))*80+(n('pNL')+n('chL'))*110+n('pSS')*80+n('pSM')*120+n('pSL')*160;const cheddar=n('chS')*5+n('chM')*5+n('chL')*7;const balls=(n('cbCS')+n('cbMS'))*4+(n('cbCM')+n('cbMM'))*4+(n('cbCL')+n('cbML'))*7;const sausages=n('sgS')*5+n('sgM')*5+n('sgL')*5+(n('saMS')+n('saMM')+n('saML')+n('spS')+n('spM')+n('spL')+n('pjS')+n('pjM')+n('pjL'))*2;const fries=(n('ff')+n('mf')+n('fc'))*120;const wedges=n('pw')*120;const wings=n('w1')+n('w2')+n('w3')+n('w4');const smallSh=n('stS')+n('orS')+n('buS')+n('haS')+n('ccS');const regularSh=n('stR')+n('orR')+n('buR')+n('haR')+n('ccR');const shPow=smallSh*15+regularSh*30;const boba=n('b1')+n('b2')+n('b3');const bPow=boba*15;const milk=smallSh+regularSh*2+boba;const ice=(n('stS')+n('orS')+n('buS')+n('haS'))*80+(n('stR')+n('orR')+n('buR')+n('haR'))*120;const bIce=boba*120;const coffee=n('ccS')*3+n('ccR')*6;set('oChicken',chicken,'g');set('oCheese',cheese,'g');set('oCheddar',cheddar,'pieces');set('oBalls',balls,'pieces');set('oSausages',sausages,'pieces');set('oFries',fries,'g');set('oWedges',wedges,'g');set('oWings',wings,'pieces');set('oShPow',shPow,'g');set('oBPow',bPow,'g');set('oPow',shPow+bPow,'g');set('oMilk',milk,'glasses');set('oIce',ice,'g');set('oBIce',bIce,'g');set('oCoffee',coffee,'g')}ids.forEach(id=>document.getElementById(id).addEventListener('input',calc));document.getElementById('reset').onclick=()=>{ids.forEach(id=>document.getElementById(id).value=0);calc()};calc();
+<div class="card"><h2>🧋 Boba Bubble</h2><p class="sub">Boba Supreme is not available yet.</p><div class="row"><div class="field"><label>Choco Burst</label><input id="b1" type="number" min="0" value="0"></div><div class="field"><label>Strawberry Bliss</label><input id="b2" type="number" min="0" value="0"></div><div class="field"><label>Boba Cream</label><input id="b3" type="number" min="0" value="0"></div><div class="field"><label>—</label><input disabled value="Boba Supreme" style="opacity:.45"></div></div><p class="tiny">Every Boba item: 120 g corresponding ice cream + 15 g milk powder + 1 glass raw milk.</p><div class="card"><h2>🥤 Soft Drinks</h2><p class="sub">Mineral Water is counted by bottles. Coke and Sprite are combined into one glass total.</p><div class="row"><div class="field"><label>Mineral Water — bottles</label><input id="mw" type="number" min="0" value="0"></div><div class="field"><label>Coke — 250 ml</label><input id="c250" type="number" min="0" value="0"></div><div class="field"><label>Coke — 350 ml</label><input id="c350" type="number" min="0" value="0"></div><div class="field"><label>Sprite — 250 ml</label><input id="s250" type="number" min="0" value="0"></div></div><div class="row" style="margin-top:10px"><div class="field"><label>Sprite — 350 ml</label><input id="s350" type="number" min="0" value="0"></div></div><p class="tiny">250 ml = 1 glass · 350 ml = 1.5 glasses. Coke + Sprite are combined.</p></div>
+<div class="card"><h2>🍗 Chicken Delight</h2><p class="sub">Enter the sold order/quantity counts. Where the menu has multiple portion sizes, select the corresponding order size.</p><div class="row"><div class="field"><label>Chicken Pop Corn — qty</label><input id="cpop" type="number" min="0" value="0"></div><div class="field"><label>Chicken Finger — 4 pc qty</label><input id="cf4" type="number" min="0" value="0"></div><div class="field"><label>Chicken Finger — 8 pc qty</label><input id="cf8" type="number" min="0" value="0"></div><div class="field"><label>Chicken Nugget — 6 pc qty</label><input id="cn6" type="number" min="0" value="0"></div></div><div class="row" style="margin-top:10px"><div class="field"><label>Chicken Nugget — 12 pc qty</label><input id="cn12" type="number" min="0" value="0"></div><div class="field"><label>BBQ Pop Corn — 6 pc qty</label><input id="bbq6" type="number" min="0" value="0"></div><div class="field"><label>BBQ Pop Corn — 12 pc qty</label><input id="bbq12" type="number" min="0" value="0"></div><div class="field"><label>Crispy Chicken — 1 pc qty</label><input id="cr1" type="number" min="0" value="0"></div></div><div class="row" style="margin-top:10px"><div class="field"><label>Crispy Chicken — 2 pc qty</label><input id="cr2" type="number" min="0" value="0"></div><div class="field"><label>Crispy Chicken — 4 pc qty</label><input id="cr4" type="number" min="0" value="0"></div><div class="field"><label>Crispy Chicken — 9 pc qty</label><input id="cr9" type="number" min="0" value="0"></div><div class="field"><label>9-piece Chicken Bucket — qty</label><input id="bucket9" type="number" min="0" value="0"></div></div><p class="tiny">The supplied rules specify these piece sizes but do not give gram amounts.</p></div>
+<div class="card"><h2>🦑 Fish & Seafood</h2><div class="row"><div class="field"><label>Squid Fry — quantity</label><input id="squid" type="number" min="0" value="0"></div></div><p class="tiny">Squid Fry = 6 squid pieces per quantity. Each Fish & Chips order = 1 whole Dori fish + 120 g raw fries. Prawn Tempura is unavailable.</p></div>
+</div>
+</section><aside><div class="card result"><h2>📋 Ingredient Totals</h2><div class="summary"><div class="metric"><span>Chicken</span><b id="oChicken">0 g</b></div><div class="metric"><span>Mozzarella</span><b id="oCheese">0 g</b></div><div class="metric"><span>Raw fries</span><b id="oFries">0 g</b></div><div class="metric"><span>Cheddar slices</span><b id="oCheddar">0 pieces</b></div><div class="metric"><span>Chicken balls</span><b id="oBalls">0 pieces</b></div><div class="metric"><span>Sausages</span><b id="oSausages">0 pieces</b></div><div class="metric"><span>Raw wedges</span><b id="oWedges">0 g</b></div><div class="metric"><span>Wings</span><b id="oWings">0 pieces</b></div><div class="metric"><span>Shake milk powder</span><b id="oShPow">0 g</b></div><div class="metric"><span>Boba milk powder</span><b id="oBPow">0 g</b></div><div class="metric"><span>Total milk powder</span><b id="oPow">0 g</b></div><div class="metric"><span>Raw milk</span><b id="oMilk">0 glasses</b></div><div class="metric"><span>UHT milk</span><b id="oUht">0 glasses</b></div><div class="metric"><span>Ice cream — shakes</span><b id="oIce">0 g</b></div><div class="metric"><span>🍓 Strawberry ice cream</span><b id="oBStraw">0 g</b></div>
+<div class="metric"><span>🍫 Chocolate ice cream</span><b id="oBChoc">0 g</b></div>
+<div class="metric"><span>🍦 Vanilla ice cream</span><b id="oBVan">0 g</b></div><div class="metric"><span>Mineral water</span><b id="oWater">0 bottles</b></div><div class="metric"><span>Soft drinks</span><b id="oSoft">0 glasses</b></div><div class="metric"><span>Chicken pieces</span><b id="oDelight">0 pieces</b></div><div class="metric"><span>Squid</span><b id="oSquid">0 pieces</b></div><div class="metric"><span>Dori fish</span><b id="oDori">0 pieces</b></div><div class="metric"><span>Coffee</span><b id="oCoffee">0 g</b></div></div><div class="actions"><button class="btn primary" id="reset">Reset</button></div><p class="tiny" style="margin-top:16px">Based on the supplied Restaurant Closing Shift Calculator cheat sheet. The calculator does not invent quantities where the sheet does not specify them.</p></div></aside></div></main></div><script>
+const ids=['pNS','pNM','pNL','pSS','pSM','pSL','chS','chM','chL','cbCS','cbCM','cbCL','cbMS','cbMM','cbML','sgS','sgM','sgL','saMS','saMM','saML','spS','spM','spL','pjS','pjM','pjL','ff','mf','fc','pw','w1','w2','w3','w4','stS','stR','orS','orR','buS','buR','haS','haR','ccS','ccR','b1','b2','b3','mw','c250','c350','s250','s350','cpop','cf4','cf8','cn6','cn12','bbq6','bbq12','cr1','cr2','cr4','cr9','bucket9','squid'];const n=id=>Number(document.getElementById(id).value)||0;const set=(id,v,u)=>document.getElementById(id).textContent=Math.round(v)+' '+u;function calc(){const chicken=(n('pNS')+n('pSS')+n('chS'))*60+(n('pNM')+n('pSM')+n('chM'))*90+(n('pNL')+n('pSL')+n('chL'))*120;const cheese=(n('pNS')+n('chS'))*50+(n('pNM')+n('chM'))*80+(n('pNL')+n('chL'))*110+n('pSS')*80+n('pSM')*120+n('pSL')*160;const cheddar=n('chS')*5+n('chM')*5+n('chL')*7;const balls=(n('cbCS')+n('cbMS'))*4+(n('cbCM')+n('cbMM'))*4+(n('cbCL')+n('cbML'))*7;const sausages=n('sgS')*5+n('sgM')*5+n('sgL')*5+(n('saMS')+n('saMM')+n('saML')+n('spS')+n('spM')+n('spL')+n('pjS')+n('pjM')+n('pjL'))*2;const fries=(n('ff')+n('mf')+n('fc'))*120;const wedges=n('pw')*120;const wings=n('w1')+n('w2')+n('w3')+n('w4');const smallSh=n('stS')+n('orS')+n('buS')+n('haS')+n('ccS');const regularSh=n('stR')+n('orR')+n('buR')+n('haR')+n('ccR');const shPow=smallSh*15+regularSh*30;const boba=n('b1')+n('b2')+n('b3');const bPow=boba*15;const milk=smallSh+regularSh*2+boba;const uht=boba;const ice=(n('stS')+n('orS')+n('buS')+n('haS'))*80+(n('stR')+n('orR')+n('buR')+n('haR'))*120;const bIceStraw=n('b2')*120;const bIceChoc=n('b1')*120;const bIceVan=n('b3')*120;const coffee=n('ccS')*3+n('ccR')*6;const water=n('mw');const soft=(n('c250')+n('s250'))+(n('c350')+n('s350'))*1.5;const delight=n('cpop')*8+n('cf4')*4+n('cf8')*8+n('cn6')*6+n('cn12')*12+n('bbq6')*6+n('bbq12')*12+n('cr1')+n('cr2')*2+n('cr4')*4+n('cr9')*9+n('bucket9')*9;const squid=n('squid')*6;const dori=n('fc');set('oChicken',chicken,'g');set('oCheese',cheese,'g');set('oCheddar',cheddar,'pieces');set('oBalls',balls,'pieces');set('oSausages',sausages,'pieces');set('oFries',fries,'g');set('oWedges',wedges,'g');set('oWings',wings,'pieces');set('oShPow',shPow,'g');set('oBPow',bPow,'g');set('oPow',shPow+bPow,'g');set('oMilk',milk,'glasses');set('oUht',uht,'glasses');set('oIce',ice,'g');set('oBStraw',bIceStraw,'g');set('oBChoc',bIceChoc,'g');set('oBVan',bIceVan,'g');set('oCoffee',coffee,'g');set('oWater',water,'bottles');set('oSoft',soft,'glasses');set('oDelight',delight,'pieces');set('oSquid',squid,'pieces');set('oDori',dori,'pieces')}ids.forEach(id=>document.getElementById(id).addEventListener('input',calc));document.getElementById('reset').onclick=()=>{ids.forEach(id=>document.getElementById(id).value=0);calc()};calc();
+
+const searchToggle=document.getElementById('searchToggle');
+const searchPanel=document.getElementById('searchPanel');
+const siteSearch=document.getElementById('siteSearch');
+const searchClear=document.getElementById('searchClear');
+const app=document.getElementById('app');
+const skipSearchNode=node=>{
+  const p=node.parentElement;
+  return p && (p.closest('#searchPanel') || p.closest('#searchToggle') || p.closest('.metric b') || p.classList.contains('search-match'));
+};
+let currentMatch=-1;
+const searchCount=document.getElementById('searchCount');
+const getMatches=()=>Array.from(app.querySelectorAll('span.search-match'));
+function updateCount(){
+  const total=getMatches().length;
+  searchCount.textContent=siteSearch.value.trim()?(total?(currentMatch+1)+'/'+total:'0'):'';
+}
+function goToMatch(i){
+  const list=getMatches();
+  if(!list.length){currentMatch=-1;updateCount();return;}
+  currentMatch=(i+list.length)%list.length;
+  list.forEach(m=>m.classList.remove('current'));
+  const el=list[currentMatch];
+  el.classList.add('current');
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  updateCount();
+}
+function clearSearchMarks(){
+  app.querySelectorAll('span.search-match').forEach(mark=>{
+    mark.replaceWith(document.createTextNode(mark.textContent));
+  });
+  app.normalize(); // merge the split text nodes so multi-letter words can match again
+  currentMatch=-1;
+  updateCount();
+}
+function runSearch(){
+  clearSearchMarks();
+  const query=siteSearch.value.trim();
+  if(!query)return;
+  const escaped=query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const regex=new RegExp(escaped,'gi');
+  const walker=document.createTreeWalker(app,NodeFilter.SHOW_TEXT);
+  const nodes=[];
+  while(walker.nextNode()){
+    const node=walker.currentNode;
+    if(!skipSearchNode(node) && node.nodeValue && regex.test(node.nodeValue)){
+      regex.lastIndex=0;
+      nodes.push(node);
+    }
+    regex.lastIndex=0;
+  }
+  nodes.forEach(node=>{
+    const frag=document.createDocumentFragment();
+    let last=0, match;
+    regex.lastIndex=0;
+    while((match=regex.exec(node.nodeValue))!==null){
+      frag.appendChild(document.createTextNode(node.nodeValue.slice(last,match.index)));
+      const mark=document.createElement('span');
+      mark.className='search-match';
+      mark.textContent=match[0];
+      frag.appendChild(mark);
+      last=match.index+match[0].length;
+      if(match[0].length===0) regex.lastIndex++;
+    }
+    frag.appendChild(document.createTextNode(node.nodeValue.slice(last)));
+    node.replaceWith(frag);
+  });
+  goToMatch(0);
+}
+function openSearch(){
+  searchPanel.classList.add('open');
+  siteSearch.focus();
+}
+function closeSearch(){
+  searchPanel.classList.remove('open');
+}
+searchToggle.addEventListener('click',()=>{
+  searchPanel.classList.contains('open') ? closeSearch() : openSearch();
+});
+siteSearch.addEventListener('input',runSearch);
+document.getElementById('searchNext').addEventListener('click',()=>goToMatch(currentMatch+1));
+document.getElementById('searchPrev').addEventListener('click',()=>goToMatch(currentMatch-1));
+siteSearch.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();goToMatch(currentMatch+(e.shiftKey?-1:1));}
+});
+searchClear.addEventListener('click',()=>{
+  siteSearch.value='';
+  clearSearchMarks();
+  closeSearch();
+});
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.search-corner')) closeSearch();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeSearch();
+});
 </script></body></html>
